@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using WhileLagoon.Appliction.Common.Interfaces;
 using WhileLagoon.Domian.Entities;
 using WhileLagoon.infrastructur.Data;
 using WhileLagoon.Web.ViewModel;
@@ -10,21 +11,21 @@ namespace WhileLagoon.Web.Controllers
 {
     public class VillaNumberController : Controller
     {
-        private readonly CLSDbContext db;
-        public VillaNumberController(CLSDbContext db)
+        private readonly IUnitOfWork unit;
+        public VillaNumberController(IUnitOfWork unit)
         {
-            this.db = db;
+            this.unit=unit;
         }
         public IActionResult Index()
         {
-            var villanumber=db.VillaNubmers.Include(u=>u.Villa).ToList();
+            var villanumber=unit.VillaNumber.GetAll(indcludeProerties:"Villa");
             return View(villanumber);
         }
         public IActionResult Create()
         {
             VillaNumberVM villaNumberVM = new()
             {
-                VillaList = db.Villas.ToList().Select(u => new SelectListItem
+                VillaList = unit.Villa.GetAll().Select(u => new SelectListItem
                 {
                     Text = u.Name,
                     Value = u.Id.ToString(),
@@ -38,12 +39,12 @@ namespace WhileLagoon.Web.Controllers
         [HttpPost]
         public IActionResult Create(VillaNumberVM obj)
         {
-            bool roomNumberExists=db.VillaNubmers.Any(u=>u.Villa_Number == obj.VillaNumber.Villa_Number);
+            bool roomNumberExists=unit.VillaNumber.Any(u=>u.Villa_Number == obj.VillaNumber.Villa_Number);
             
             if (ModelState.IsValid &&!roomNumberExists)
             {
-                db.VillaNubmers.Add(obj.VillaNumber);
-                db.SaveChanges();
+                unit.VillaNumber.Add(obj.VillaNumber);
+                unit.save();
                 TempData["success"] = "The villa number has been create successfully.";
                 return RedirectToAction(nameof(Index));
             }
@@ -51,7 +52,7 @@ namespace WhileLagoon.Web.Controllers
             {
                 TempData["error"] = "The villa number already exists.";
             }
-            obj.VillaList = db.Villas.ToList().Select(u => new SelectListItem
+            obj.VillaList = unit.Villa.GetAll().Select(u => new SelectListItem
             {
                 Text = u.Name,
                 Value = u.Id.ToString(),
@@ -63,12 +64,12 @@ namespace WhileLagoon.Web.Controllers
         {
             VillaNumberVM villaNumberVM = new()
             {
-                VillaList=db.Villas.ToList().Select(u=>new SelectListItem
+                VillaList=unit.Villa.GetAll().Select(u=>new SelectListItem
                 {
                     Text=u.Name,
                     Value=u.Id.ToString(),
                 })
-               ,VillaNumber=db.VillaNubmers.FirstOrDefault(u=>u.Villa_Number==id)
+               ,VillaNumber=unit.VillaNumber.Get(u=>u.Villa_Number==id)
             };
             //Villa? obj = db.Villas.FirstOrDefault(x => x.Id == id);
             if (villaNumberVM.VillaNumber == null)
@@ -83,15 +84,15 @@ namespace WhileLagoon.Web.Controllers
             
             if (ModelState.IsValid )
             {
-                db.VillaNubmers.Update(obj.VillaNumber);
-                db.SaveChanges();
+                unit.VillaNumber.update(obj.VillaNumber);
+                unit.save();
                 TempData["success"] = "The villa number has been create successfully.";
                 return RedirectToAction(nameof(Index));             
 
-);
+
             }
            
-            obj.VillaList = db.Villas.ToList().Select(u => new SelectListItem
+            obj.VillaList = unit.Villa.GetAll().Select(u => new SelectListItem
             {
                 Text = u.Name,
                 Value = u.Id.ToString(),
@@ -103,13 +104,13 @@ namespace WhileLagoon.Web.Controllers
         {
             VillaNumberVM villaNumberVM = new()
             {
-                VillaList = db.Villas.ToList().Select(u => new SelectListItem
+                VillaList = unit.Villa.GetAll().Select(u => new SelectListItem
                 {
                     Text = u.Name,
                     Value = u.Id.ToString(),
                 })
                ,
-                VillaNumber = db.VillaNubmers.FirstOrDefault(u => u.Villa_Number == id)
+                VillaNumber = unit.VillaNumber.Get(u => u.Villa_Number == id)
             };
             
             if (villaNumberVM.VillaNumber == null)
@@ -121,12 +122,12 @@ namespace WhileLagoon.Web.Controllers
         [HttpPost]
         public IActionResult Delete(VillaNumberVM obj)
         {
-            VillaNumber? villa = db.VillaNubmers.
-                FirstOrDefault(v => v.Villa_Number == obj.VillaNumber.Villa_Number);
+            VillaNumber? villa = unit.VillaNumber.
+                Get(v => v.Villa_Number == obj.VillaNumber.Villa_Number);
             if (villa is not null)
             {
-                db.VillaNubmers.Remove(villa);
-                db.SaveChanges();
+               unit.VillaNumber.Remove(villa);
+                unit.save();
                 TempData["success"] = "The villa has been delete successfully.";
                 return RedirectToAction(nameof (Index));
             }

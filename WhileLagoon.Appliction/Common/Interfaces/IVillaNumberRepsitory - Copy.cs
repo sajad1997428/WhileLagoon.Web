@@ -8,12 +8,10 @@ using WhileLagoon.Domian.Entities;
 
 namespace WhileLagoon.Appliction.Common.Interfaces
 {
-    public interface IVillaRepsitory:IRepository<Villa>
+    public interface IVillaNumberRepsitory:IRepository<VillaNumber>
     {
-      
-       
-   
-        void update(Villa entity);
+
+        void update(VillaNumber entity);
        
     }
 }

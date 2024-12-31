@@ -11,20 +11,17 @@ using WhileLagoon.infrastructur.Data;
 
 namespace WhileLagoon.infrastructur.Repsitory
 {
-    public class VillaRepsitory :Repository<Villa>, IVillaRepsitory
+    public class VillaNumberRepsitory :Repository<VillaNumber>, IVillaNumberRepsitory
     {
         private readonly CLSDbContext db;
-        public VillaRepsitory(CLSDbContext db):base(db)
+        public VillaNumberRepsitory(CLSDbContext db):base(db)
         {
             this.db = db;
         }
-        public void Add(Villa entity)
-        {
-            db.Add(entity);
-        }
+       
        
 
-        public void update(Villa entity)
+        public void update(VillaNumber entity)
         {
             db.Update(entity);
         }

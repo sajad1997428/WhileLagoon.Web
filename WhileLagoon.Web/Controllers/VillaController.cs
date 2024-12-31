@@ -7,14 +7,14 @@ namespace WhileLagoon.Web.Controllers
 {
     public class VillaController : Controller
     {
-        private readonly IVillaRepsitory villaRe;
-        public VillaController(IVillaRepsitory villaRe)
+        private readonly IUnitOfWork unit;
+        public VillaController(IUnitOfWork unit)
         {
-            this.villaRe = villaRe;
+            this.unit = unit;
         }
         public IActionResult Index()
         {
-            var villas=villaRe.GetAll();
+            var villas=unit.Villa.GetAll();
             return View(villas);
         }
         public IActionResult Create()
@@ -30,8 +30,8 @@ namespace WhileLagoon.Web.Controllers
             }
             if(ModelState.IsValid)
             {
-                villaRe.Add(obj);
-                villaRe.save();
+                unit.Villa.Add(obj);
+                unit.save();
                 TempData["success"] = "The villa has been create successfully.";
                 return RedirectToAction("Index");
             }
@@ -39,7 +39,7 @@ namespace WhileLagoon.Web.Controllers
         }
         public IActionResult Edit(int id)
         {
-            Villa? obj=villaRe.Get(x => x.Id == id);
+            Villa? obj= unit.Villa.Get(x => x.Id == id);
             if(obj==null)
             {
                 return RedirectToAction("Error","Home");
@@ -52,8 +52,8 @@ namespace WhileLagoon.Web.Controllers
            
             if (ModelState.IsValid &&  obj.Id>0)
             {
-                villaRe.update(obj);
-                villaRe.save();
+                unit.Villa.update(obj);
+                unit.save();
                 TempData["success"] = "The villa has been Edit successfully.";
                 return RedirectToAction("Index");
             }
@@ -61,7 +61,7 @@ namespace WhileLagoon.Web.Controllers
         }
         public IActionResult Delete(int id)
         {
-            Villa? obj = villaRe.Get(x => x.Id == id);
+            Villa? obj = unit.Villa.Get(x => x.Id == id);
             if (obj is null)
             {
                 return RedirectToAction("Error", "Home");
@@ -71,11 +71,11 @@ namespace WhileLagoon.Web.Controllers
         [HttpPost]
         public IActionResult Delete(Villa obj)
         {
-            Villa? villa = villaRe.Get(v => v.Id == obj.Id);
+            Villa? villa = unit.Villa.Get(v => v.Id == obj.Id);
             if (villa is not null)
             {
-               villaRe.Remove(villa);
-                villaRe.save();
+                unit.Villa.Remove(villa);
+                unit.save();
                 TempData["success"] = "The villa has been delete successfully.";
                 return RedirectToAction("Index");
             }
