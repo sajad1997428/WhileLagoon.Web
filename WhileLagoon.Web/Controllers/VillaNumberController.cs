@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using WhileLagoon.Domian.Entities;
 using WhileLagoon.infrastructur.Data;
@@ -16,7 +17,7 @@ namespace WhileLagoon.Web.Controllers
         }
         public IActionResult Index()
         {
-            var villanumber=db.VillaNubmers.ToList();
+            var villanumber=db.VillaNubmers.Include(u=>u.Villa).ToList();
             return View(villanumber);
         }
         public IActionResult Create()
@@ -35,38 +36,101 @@ namespace WhileLagoon.Web.Controllers
             return View(villaNumberVM);
         }
         [HttpPost]
-        public IActionResult Create(VillaNumber obj)
+        public IActionResult Create(VillaNumberVM obj)
         {
+            bool roomNumberExists=db.VillaNubmers.Any(u=>u.Villa_Number == obj.VillaNumber.Villa_Number);
             
-            if (ModelState.IsValid)
+            if (ModelState.IsValid &&!roomNumberExists)
             {
-                db.VillaNubmers.Add(obj);
+                db.VillaNubmers.Add(obj.VillaNumber);
                 db.SaveChanges();
                 TempData["success"] = "The villa number has been create successfully.";
-                return RedirectToAction("Index");
+                return RedirectToAction(nameof(Index));
             }
-            return View();
+            if (roomNumberExists)
+            {
+                TempData["error"] = "The villa number already exists.";
+            }
+            obj.VillaList = db.Villas.ToList().Select(u => new SelectListItem
+            {
+                Text = u.Name,
+                Value = u.Id.ToString(),
+
+            });
+            return View(obj);
         }
         public IActionResult Edit(int id)
         {
-            Villa? obj = db.Villas.FirstOrDefault(x => x.Id == id);
-            if (obj == null)
+            VillaNumberVM villaNumberVM = new()
+            {
+                VillaList=db.Villas.ToList().Select(u=>new SelectListItem
+                {
+                    Text=u.Name,
+                    Value=u.Id.ToString(),
+                })
+               ,VillaNumber=db.VillaNubmers.FirstOrDefault(u=>u.Villa_Number==id)
+            };
+            //Villa? obj = db.Villas.FirstOrDefault(x => x.Id == id);
+            if (villaNumberVM.VillaNumber == null)
             {
                 return RedirectToAction("Error", "Home");
             }
-            return View(obj);
+            return View(villaNumberVM);
         }
         [HttpPost]
-        public IActionResult Edit(Villa obj)
+        public IActionResult Edit(VillaNumberVM obj)
         {
-
-            if (ModelState.IsValid && obj.Id > 0)
+            
+            if (ModelState.IsValid )
             {
-                db.Villas.Update(obj);
+                db.VillaNubmers.Update(obj.VillaNumber);
                 db.SaveChanges();
-                TempData["success"] = "The villa has been Edit successfully.";
-                return RedirectToAction("Index");
+                TempData["success"] = "The villa number has been create successfully.";
+                return RedirectToAction(nameof(Index));             
+
+);
             }
+           
+            obj.VillaList = db.Villas.ToList().Select(u => new SelectListItem
+            {
+                Text = u.Name,
+                Value = u.Id.ToString(),
+
+            });
+            return View(obj);
+        }
+        public IActionResult Delete(int id)
+        {
+            VillaNumberVM villaNumberVM = new()
+            {
+                VillaList = db.Villas.ToList().Select(u => new SelectListItem
+                {
+                    Text = u.Name,
+                    Value = u.Id.ToString(),
+                })
+               ,
+                VillaNumber = db.VillaNubmers.FirstOrDefault(u => u.Villa_Number == id)
+            };
+            
+            if (villaNumberVM.VillaNumber == null)
+            {
+                return RedirectToAction("Error", "Home");
+            }
+            return View(villaNumberVM);
+        }
+        [HttpPost]
+        public IActionResult Delete(VillaNumberVM obj)
+        {
+            VillaNumber? villa = db.VillaNubmers.
+                FirstOrDefault(v => v.Villa_Number == obj.VillaNumber.Villa_Number);
+            if (villa is not null)
+            {
+                db.VillaNubmers.Remove(villa);
+                db.SaveChanges();
+                TempData["success"] = "The villa has been delete successfully.";
+                return RedirectToAction(nameof (Index));
+            }
+            TempData["error"] = "The villa could not be delete";
             return View();
         }
     }

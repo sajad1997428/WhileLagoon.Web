@@ -1,11 +1,14 @@
 using Microsoft.EntityFrameworkCore;
+using WhileLagoon.Appliction.Common.Interfaces;
 using WhileLagoon.infrastructur.Data;
+using WhileLagoon.infrastructur.Repsitory;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddDbContextPool<CLSDbContext>(op => op.UseSqlServer(builder.Configuration.GetConnectionString("con")));
+builder.Services.AddScoped<IVillaRepsitory, VillaRepsitory>();
 
 
 var app = builder.Build();

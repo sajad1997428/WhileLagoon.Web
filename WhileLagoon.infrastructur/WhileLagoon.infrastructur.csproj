@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\WhileLagoon.Domian\WhileLagoon.Domian.csproj" />
+    <ProjectReference Include="..\WhileLagoon.Appliction\WhileLagoon.Appliction.csproj" />
   </ItemGroup>
 
 </Project>
