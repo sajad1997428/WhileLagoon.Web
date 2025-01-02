@@ -25,4 +25,8 @@
     <ProjectReference Include="..\WhileLagoon.infrastructur\WhileLagoon.infrastructur.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\Images\VillaImage\" />
+  </ItemGroup>
+
 </Project>

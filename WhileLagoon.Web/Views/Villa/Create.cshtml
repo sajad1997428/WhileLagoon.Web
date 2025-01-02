@@ -10,7 +10,7 @@
 
     </div>
     <div class="card-body border p-4">
-        <form method="post" class="row">
+        <form method="post" class="row" enctype="multipart/form-data">
             <div class="p-3">
                 <div asp-validation-summary="None"></div>
                 <div class="form-floating py-2 col-12">
@@ -42,6 +42,7 @@
                 </div>
                 <div class="form-floating py-2 col-12">
                     <input asp-for="ImageUel" class="form-control border shadow" />
+                    <input asp-for="Image" class="form-control border shadow" />
                     <label asp-for="ImageUel" class="ms-2"></label>
                     <span asp-validation-for="ImageUel" class="text-danger"></span>
                 </div>
